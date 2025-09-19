@@ -1,27 +1,39 @@
-# App
+# Speech to Text Transcription MVP (Python/Angular)
+<img width="356" height="400" alt="Bildschirmfoto vom 2025-09-19 16-39-27" src="https://github.com/user-attachments/assets/aa3fc523-c073-4842-a905-51af4165eb0a" />
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.5.
+In this project I have created a mvp for speech to text transcription. Using FastAPI (Python) in the Backend and Angular in the Frontend.
+For the model I make use of [faster-whisper](https://github.com/SYSTRAN/faster-whisper)
 
-## Development server
+## Problem to solve
+I have defined the following requirements:
+- I want to record my speech in the browser and translate it to text in real time
+- I want to be able to run the app with minimal ressources
+- I want some basic styling that can be easily improved for the future
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+## How I solved it
 
-## Code scaffolding
+### Techstack
+For the Frontend I am using Angular because of personal preferences.
+For the Backend I make use of FastAPI because most AI Models will be provided via Python libraries.
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+### Audio Format
+Using Audio Codec Opus gives the advantages of high quality audio data with compression. Therefore data latency is minimal and the transcription model can rely on high quality audio data.
 
-## Build
+### Real Time Translation
+Audio recording is being done in the frontend and audio to text transcription in the backend which then needs to be displayed in the frontend again. 
+To achieve Real Time Translation a continuous data flow between frontend and backend needs to be achieved.
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+#### Communication
+To reduce connection overhead I make use of Websockets. With that the connection between Frontend and Backend has to be done only once and after that data can be send with full duplex.
+The downside is that depending on the implementation of the backend, it is not guaranteed that the data being send is recieved in the same order. 
+To solve this problem a custom binary protocol has been implemented where each audio chunk is prefixed with an id of 4 bytes.
 
-## Running unit tests
+![binaryprot](https://github.com/user-attachments/assets/7ad3b244-f09c-41cd-9926-0889da5f85dc)
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+#### Binary 
 
-## Running end-to-end tests
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+### Minimal Ressoruces
 
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+### Styling
+For styling I make use of GSAP for the text animation and CSS for the rest.
