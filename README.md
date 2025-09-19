@@ -20,7 +20,7 @@ For the Backend I make use of FastAPI because most AI Models will be provided vi
 Using Audio Codec Opus gives the advantages of high quality audio data with compression. Therefore data latency is minimal and the transcription model can rely on high quality audio data.
 
 ### Real Time Translation
-Audio recording is being done in the frontend and audio to text transcription in the backend which then needs to be displayed in the frontend again. 
+Audio recording is being done in the frontend, audio to text transcription in the backend that has to be displayed in the frontend again. 
 To achieve Real Time Translation a continuous data flow between frontend and backend needs to be achieved.
 
 #### Communication
@@ -30,10 +30,14 @@ To solve this problem a custom binary protocol has been implemented where each a
 
 ![binaryprot](https://github.com/user-attachments/assets/7ad3b244-f09c-41cd-9926-0889da5f85dc)
 
-#### Binary 
-
+#### Parallel Data Processing (Backend)
+One could think FastAPI with its async endpoints would be a perfect fit to deal with the continous flow of audio data. But FastAPI async endpoints using coroutines only has its strength in IO heavy tasks and transcripting audio data to text is a CPU heavy task.
+Therefore extra efford is needed to handle the data processing in the backend by using a Processpool. Only with a Processpool it is possible to achieve parallelism in Python where each Process has its own GIL.
 
 ### Minimal Ressoruces
+
+Neural Networks for such tasks can quickly use multiple GB of RAM. To reduce the RAM usage only a small model can be used which reduces the accuracy of the transcription.
+
 
 ### Styling
 For styling I make use of GSAP for the text animation and CSS for the rest.
