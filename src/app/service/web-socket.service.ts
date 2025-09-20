@@ -45,7 +45,7 @@ export class WebSocketService {
 
     this.ws.onerror = err => {console.log(`Error with Socket: ${err}`)}
     this.ws.onclose = () => {console.log('Socket closed'); this.ws = undefined}
-    this.ws.onmessage = event => {this.receivedData$.next(event.data)}
+    this.ws.onmessage = event => {this.receivedData$.next(JSON.parse(event.data))}
   }
 
   private get isInvalidState():boolean {

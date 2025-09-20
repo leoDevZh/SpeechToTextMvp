@@ -89,14 +89,13 @@ export class SinglePassTranscriptionStrategy extends TranscriptionStrategy imple
     this.webSocket.stopWebSocket()
   }
 
-  private webserverDataHandler = (jsonData: string) => {
+  private webserverDataHandler = (jsonData: any) => {
     try {
-      const parsedJson = JSON.parse(jsonData)
-      const data = this.getUnprocessedDataById(parsedJson.id)
+      const data = this.getUnprocessedDataById(jsonData.id)
       if (!data) return
 
-      this.deleteUnprocessedDataById(parsedJson.id)
-      data.text = parsedJson.text
+      this.deleteUnprocessedDataById(jsonData.id)
+      data.text = jsonData.text
       data.status = 'VERIFIED'
       this.dataService.addData(data)
     } catch (err) {
