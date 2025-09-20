@@ -1,27 +1,76 @@
-# App
+# Speech to Text Transcription MVP (Python/Angular)
+<img width="356" height="400" alt="Bildschirmfoto vom 2025-09-19 16-39-27" src="https://github.com/user-attachments/assets/aa3fc523-c073-4842-a905-51af4165eb0a" />
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.5.
+This project is a **minimal viable product (MVP)** for **real-time speech-to-text transcription**, built with:
 
-## Development server
+- **Backend:** FastAPI (Python)
+- **Frontend:** Angular
+- **Model:** [faster-whisper](https://github.com/SYSTRAN/faster-whisper)
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+## Problem to solve
+I wanted to build a simple application that:
+- Records speech in the browser and transcribes it to text **in real time**
+- Runs with **minimal resources** (RAM/CPU)
+- Has **basic styling** that can be extended in the future
+- Provides a **clean and maintainable codebase** for future features
 
-## Code scaffolding
+## Solution Overview
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+### Techstack
+- **Frontend (Angular):** My framework of choice for building a structured UI.
+- **Backend (FastAPI):** Ideal for serving AI models that are typically Python-based.
+  
+### Audio Format
+Using Audio Codec Opus gives the advantages of high quality audio data with compression. Therefore data latency is minimal and the transcription model can rely on high quality audio data.
 
-## Build
+### Real Time Translation
+The flow is:
+1. **Frontend:** Captures audio from the microphone
+2. **Backend:** Processes and transcries with faster-whisper
+3. **Frontend:** Displays the transcribed text live
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+#### Communication
+To reduce connection overhead I make use of Websockets. With that the connection between Frontend and Backend has to be done only once and after that data can be send with full duplex.
+The downside is that depending on the implementation of the backend, it is not guaranteed that the data being send is recieved in the same order. 
+To solve this problem a custom binary protocol has been implemented where each audio chunk is prefixed with an id of 4 bytes.
 
-## Running unit tests
+![binaryprot](https://github.com/user-attachments/assets/7ad3b244-f09c-41cd-9926-0889da5f85dc)
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+#### Parallel Data Processing (Backend)
+One could think FastAPI with its async endpoints would be a perfect fit to deal with the continous flow of audio data. But FastAPI async endpoints using coroutines only has its strength in I/O heavy tasks and transcripting audio data to text is a CPU heavy task.
+Therefore extra efford is needed to handle the data processing in the backend by using a Processpool. Only with a Processpool it is possible to achieve parallelism in Python where each Process has its own GIL.
 
-## Running end-to-end tests
+### Minimal Ressoruces
+Neural Networks for such tasks can quickly use multiple GB of RAM. And if predictions are not being accelerated with a GPU latency is quickly to high for Real Time Translation. To reduce the RAM usage and latency only a small model can be used which reduces the accuracy of the transcription.
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+### Styling
+For styling I make use of GSAP for the text animation and CSS for the rest. As a little extra I visualize the audio stream using canvas and AudioContext.
 
-## Further help
+### Architecture
+There is actually just one thing to say. **Define Responsibilities**.
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+The following graphics gives an overview of the Frontend Services.
+
+![STTA](https://github.com/user-attachments/assets/33756188-e138-452b-a565-b469a3b512c9)
+
+## Installaton & Running the App
+```bash
+# Clone the repo
+git clone https://github.com/leoDevZh/speech-to-text-mvp.git
+cd speech-to-text-mvp
+
+# Backend setup
+cd backend
+pip install -r requirements.txt
+uvicorn app:app --reload
+
+# Frontend setup
+cd ../frontend
+npm install
+npm start
+```
+
+## Future improvements
+- Improve transcription **accuracy** with larger models
+- Enhance **UI/UX**
+- Add **authentication** for multi-user scenarios
